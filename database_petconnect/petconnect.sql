@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Waktu pembuatan: 27 Jun 2026 pada 01.37
+-- Waktu pembuatan: 27 Jun 2026 pada 01.56
 -- Versi server: 10.4.32-MariaDB
 -- Versi PHP: 8.2.12
 
@@ -43,7 +43,7 @@ CREATE TABLE `user` (
 --
 
 INSERT INTO `user` (`id`, `name`, `email`, `image`, `password`, `role_id`, `is_active`, `date_created`) VALUES
-(2, 'Dzaky Imam Akbari', 'dzakyimamakbari@gmail.com', 'default.jpg', '$2y$10$3S8Mngm3gcwkyEYsRN6kD.lmk4qPgW.yPkc1R6Qs1XgQlyxJg2GzG', 2, 1, 1782516529);
+(3, 'Dzaky Imam', 'dzakyimamakbari@gmail.com', 'default.jpg', '$2y$10$1BcxDuK6JG0aDixSFRiq5.psFLA0098tw9itoReZESTXDtKkQW0o6', 2, 1, 1782517969);
 
 -- --------------------------------------------------------
 
@@ -88,7 +88,7 @@ ALTER TABLE `user_role`
 -- AUTO_INCREMENT untuk tabel `user`
 --
 ALTER TABLE `user`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT untuk tabel `user_role`

@@ -25,5 +25,10 @@ class Auth extends CI_Controller
         } else {
             echo 'Data Berhasil Ditambahkan!'
         }
+        $data['title'] = 'WPU User Registration';
+
+        $this->load->view('templates/auth_header', $data);
+        $this->load->view('auth/registration');
+        $this->load->view('templates/auth_footer');
     }
 }

@@ -41,8 +41,7 @@
             <hr class="sidebar-divider">
 
             <li class="nav-item">
-                <a class="nav-link" href="<?= base_url('auth/logout'); ?>"
-                    <i class="fa-fw fa-solid fa-right-from-bracket"></i>
+                <a class="nav-link" href="<?= base_url('auth/logout'); ?>"><i class="fas fa-fw fa-sign-out-alt"></i>
                     <span>Logout</span></a>
             </li>
 

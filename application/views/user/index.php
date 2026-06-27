@@ -8,9 +8,7 @@
         <div class="row no-gutters">
 
             <div class="col-md-4">
-                <img src="<?= base_url('assets/img/profile/') . $user['image']; ?>"
-                     class="card-img"
-                     alt="Profile Image">
+                <img src="<?= base_url('assets/img/profile/') . $user['image']; ?>"class="card-img" alt="Profile Image">
             </div>
 
             <div class="col-md-8">

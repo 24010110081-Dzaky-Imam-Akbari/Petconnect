@@ -4,8 +4,6 @@
     <!-- Page Heading -->
     <h1 class="h3 mb-4 text-gray-800"><?= $title; ?></h1>
 
-    
-
     <div class="row">
         <div class="col-lg">
             <?php if(validation_errors()) : ?>
@@ -101,6 +99,7 @@
                     </label>
                 </div>
             </div>
+          </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
             <button type="submit" class="btn btn-primary">Add</button>

@@ -7,12 +7,12 @@ class Auth extends CI_Controller
     {
         parent::__construct();
         $this->load->library('form_validation');
-        
+
     }
 
     public function index()
     {
-        if($this->session->userdata('email')) {
+        if ($this->session->userdata('email')) {
             redirect('user');
         }
 
@@ -46,9 +46,9 @@ class Auth extends CI_Controller
                         'role_id' => $user['role_id']
                     ];
                     $this->session->set_userdata($data);
-                    if($user['role_id'] == 1){
-                       redirect('admin'); 
-                    }else {
+                    if ($user['role_id'] == 1) {
+                        redirect('admin');
+                    } else {
                         redirect('user');
                     }
                     redirect('user');
@@ -83,10 +83,10 @@ class Auth extends CI_Controller
 
     public function registration()
     {
-        if($this->session->userdata('email')) {
+        if ($this->session->userdata('email')) {
             redirect('user');
         }
-        
+
         $this->form_validation->set_rules('name', 'Name', 'required|trim');
 
         $this->form_validation->set_rules(
@@ -121,9 +121,10 @@ class Auth extends CI_Controller
             $this->load->view('auth/registration');
             $this->load->view('templates/auth_footer');
         } else {
+            $email = $this->input->post('email', true);
             $data = [
                 'name' => htmlspecialchars($this->input->post('name', true)),
-                'email' => htmlspecialchars($this->input->post('email', true)),
+                'email' => htmlspecialchars($email),
                 'image' => 'default.jpg',
                 'password' => password_hash($this->input->post('password1'), PASSWORD_DEFAULT),
                 'role_id' => 2,
@@ -131,14 +132,23 @@ class Auth extends CI_Controller
                 'date_created' => time()
             ];
 
-            // $this->db->insert('user', $data);
+            //siapkan token
+            $token = base64_endcode(random_bytes(32));
+            $user_token = [
+                'email' => $email,
+                'token' => $token,
+                'date_create' => time()
+            ];
 
-            $this->_sendEmail();
+            $this->db->insert('user', $data);
+            $this->db->insert('user_token', $user_token);
+
+            $this->_sendEmail($token, 'verify');
 
             $this->session->set_flashdata(
                 'message',
                 '<div class="alert alert-success" role="alert">
-                    Congratulation! Your account has been created. Please login
+                    Congratulation! Your account has been created. Please activate your account
                 </div>'
             );
 
@@ -147,30 +157,96 @@ class Auth extends CI_Controller
     }
 
 
-    private function _sendEmail() {
+    private function _sendEmail($token, $type)
+    {
         $config = [
-            'protocol'  => 'smtp',
+            'protocol' => 'smtp',
             'smtp_host' => 'ssl://smtp.googlemail.com',
             'smtp_user' => '',
             'smtp_pass' => '',
             'smtp_port' => 465,
-            'mailtype'  => 'html',
-            'charset'   => 'utf-8',
-            'newline'   => "\r\n",
+            'mailtype' => 'html',
+            'charset' => 'utf-8',
+            'newline' => "\r\n",
         ];
 
         $this->load->library('email', $config);
 
-        $this->email->from('','');
-        $this->email->to('');
-        $this->email->subject('Testing');
-        $this->email->message('Hello World');
+        $this->email->from('', '');
+        $this->email->to($this->input->post('email'));
+
+        if ($type == 'verify') {
+            $this->email->subject('Account Verification');
+            $this->email->message('Click this link to verify your account :
+                <a href="' . base_url() . 'auth/verify?email=' .
+                $this->input->post('email') . '&token=' .
+                urlencode($token) . '">Activate</a>');
+        }
+
 
         if ($this->email->send()) {
             return true;
         } else {
             echo $this->email->print_debugger();
             die;
+        }
+    }
+
+
+    public function verify()
+    {
+        $email = $this->input->get('email');
+        $token = $this->input->get('token');
+
+        $user = $this->db->get_where('users', ['email' => $email])->row_array();
+
+        if ($user) {
+            $user_token = $this->db->get_where('user_token', ['token' => $token])->row_array();
+
+            if ($user_token) {
+                if (time() - $user_token['date_created'] < (60 * 60 * 24)) {
+                    $this->db->set('is_active', 1);
+                    $this->db->where('email', $email);
+                    $this->db->update('user');
+
+                    $this->db->delete('user_token', ['email' => $email]);
+
+                    $this->session->set_flashdata(
+                        'message',
+                        '<div class="alert alert-success" role="alert">' . $email . ' 
+                        has been activated! Please login.</div>'
+                    );
+                    redirect('auth');
+                } else {
+
+                    $this->db->delete('user', ['email' => $email]);
+                    $this->db->delete('user_token', ['email' => $email]);
+
+                    $this->session->set_flashdata(
+                        'message',
+                        '<div class="alert alert-danger" role="alert">
+                    Account activation failed! Token expired.
+            </div>'
+                    );
+                    redirect('auth');
+                }
+            } else {
+                $this->session->set_flashdata(
+                    'message',
+                    '<div class="alert alert-danger" role="alert">
+                    Account activation failed! Token invalid.
+            </div>'
+                );
+                redirect('auth');
+            }
+        } else {
+            $this->session->set_flashdata(
+                'message',
+                '<div class="alert alert-danger" role="alert">
+                    Account activation failed! Wrong email.
+            </div>'
+            );
+            redirect('auth');
         }
     }
 

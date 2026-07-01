@@ -133,11 +133,12 @@ class Auth extends CI_Controller
             ];
 
             //siapkan token
-            $token = base64_endcode(random_bytes(32));
+            $token = base64_encode(random_bytes(32));
+
             $user_token = [
                 'email' => $email,
                 'token' => $token,
-                'date_create' => time()
+                'date_created' => time()
             ];
 
             $this->db->insert('user', $data);
@@ -160,19 +161,22 @@ class Auth extends CI_Controller
     private function _sendEmail($token, $type)
     {
         $config = [
-            'protocol' => 'smtp',
-            'smtp_host' => 'ssl://smtp.googlemail.com',
-            'smtp_user' => '',
-            'smtp_pass' => '',
-            'smtp_port' => 465,
-            'mailtype' => 'html',
-            'charset' => 'utf-8',
-            'newline' => "\r\n",
+            'protocol'    => 'smtp',
+            'smtp_host'   => 'smtp.gmail.com',
+            'smtp_crypto' => 'ssl',
+            'smtp_port'   => 465,
+            'smtp_user'   => 'petconnectverif@gmail.com',
+            'smtp_pass'   => 'qgrpwxdxhjqyowwr',
+            'mailtype'    => 'html',
+            'charset'     => 'utf-8',
+            'crlf'        => "\r\n",
+            'newline'     => "\r\n"
         ];
 
-        $this->load->library('email', $config);
+        $this->load->library('email');
+        $this->email->initialize($config);
 
-        $this->email->from('', '');
+        $this->email->from('petconnectverif@gmail.com', 'PETCONNECT');
         $this->email->to($this->input->post('email'));
 
         if ($type == 'verify') {
@@ -198,7 +202,7 @@ class Auth extends CI_Controller
         $email = $this->input->get('email');
         $token = $this->input->get('token');
 
-        $user = $this->db->get_where('users', ['email' => $email])->row_array();
+        $user = $this->db->get_where('user', ['email' => $email])->row_array();
 
         if ($user) {
             $user_token = $this->db->get_where('user_token', ['token' => $token])->row_array();
